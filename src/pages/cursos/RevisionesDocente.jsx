@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { CheckCircle, Clock, ExternalLink, Download, FileText, Activity } from 'lucide-react';
+import { CheckCircle, Clock, ExternalLink, FileText, Activity } from 'lucide-react';
 
 export default function RevisionesDocente() {
   const { profile } = useAuth();
@@ -14,13 +14,7 @@ export default function RevisionesDocente() {
   const [calificacionData, setCalificacionData] = useState({ nota: '', observacion: '' });
   const [guardando, setGuardando] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      fetchEntregasArbol();
-    }
-  }, [profile]);
-
-  const fetchEntregasArbol = async () => {
+  const fetchEntregasArbol = useCallback(async () => {
     setLoading(true);
     try {
       // 1. Cursos del docente
@@ -93,7 +87,13 @@ export default function RevisionesDocente() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    if (profile) {
+      fetchEntregasArbol();
+    }
+  }, [profile, fetchEntregasArbol]);
 
   const abrirModal = (entrega) => {
     setEntregaActiva(entrega);

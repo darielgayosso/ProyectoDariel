@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,13 +19,7 @@ export default function ResolverCuestionario() {
   const [respuestas, setRespuestas] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (profile && id_cuestionario) {
-      fetchData();
-    }
-  }, [profile, id_cuestionario]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // 1. Revisar si ya lo respondió
@@ -63,7 +57,13 @@ export default function ResolverCuestionario() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id_cuestionario, profile]);
+
+  useEffect(() => {
+    if (profile && id_cuestionario) {
+      fetchData();
+    }
+  }, [profile, id_cuestionario, fetchData]);
 
   const handleSeleccionarOpcion = (id_pregunta, id_opcion) => {
     if (yaRespondido) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { MessageSquare, Send, BookOpen, Clock, User } from 'lucide-react';
@@ -22,13 +22,7 @@ export default function ForoVista() {
 
   const isDocente = profile?.id_rol === 2 || profile?.id_rol === 1;
 
-  useEffect(() => {
-    if (profile) {
-      cargarCursos();
-    }
-  }, [profile]);
-
-  const cargarCursos = async () => {
+  const cargarCursos = useCallback(async () => {
     setLoading(true);
     try {
       if (isDocente) {
@@ -50,18 +44,15 @@ export default function ForoVista() {
     } catch(e) {
       console.error(e);
     }
-  };
+  }, [isDocente, profile]);
 
   useEffect(() => {
-    if (cursoActivo) {
-      cargarForos(cursoActivo);
-    } else {
-      setForos([]);
-      setLoading(false);
+    if (profile) {
+      cargarCursos();
     }
-  }, [cursoActivo]);
+  }, [profile, cargarCursos]);
 
-  const cargarForos = async (id_curso) => {
+  const cargarForos = useCallback(async (id_curso) => {
     setLoading(true);
     try {
       // 1. Cargar foros
@@ -104,7 +95,16 @@ export default function ForoVista() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (cursoActivo) {
+      cargarForos(cursoActivo);
+    } else {
+      setForos([]);
+      setLoading(false);
+    }
+  }, [cursoActivo, cargarForos]);
 
   const handleCrearForo = async (e) => {
     e.preventDefault();

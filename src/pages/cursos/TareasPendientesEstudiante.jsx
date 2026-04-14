@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
-import { Layout, Calendar, AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
+import { Layout, AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function TareasPendientesEstudiante() {
   const { profile } = useAuth();
   const [tareasPendientes, setTareasPendientes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (profile?.id_rol === 3) {
-      cargarTareasPendientes();
-    }
-  }, [profile]);
-
-  const cargarTareasPendientes = async () => {
+  const cargarTareasPendientes = useCallback(async () => {
     setLoading(true);
     try {
       // 1. Obtener los cursos en los que está inscrito el estudiante
@@ -83,7 +77,13 @@ export default function TareasPendientesEstudiante() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    if (profile?.id_rol === 3) {
+      cargarTareasPendientes();
+    }
+  }, [profile, cargarTareasPendientes]);
 
   return (
     <div className="max-w-7xl mx-auto animate-fade-in">
