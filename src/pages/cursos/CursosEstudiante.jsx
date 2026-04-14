@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Search, BookOpen, Clock, PlayCircle } from 'lucide-react';
+import { Search, Clock, PlayCircle } from 'lucide-react';
 
 export default function CursosEstudiante() {
   const { profile } = useAuth();
@@ -14,11 +14,7 @@ export default function CursosEstudiante() {
   const [categorias, setCategorias] = useState([]);
   const [mensaje, setMensaje] = useState(null);
 
-  useEffect(() => {
-    if (profile) fetchData();
-  }, [profile]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // Obtener todos los cursos activos, junto con el nombre de la categoria y el docente
@@ -54,7 +50,11 @@ export default function CursosEstudiante() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    if (profile) fetchData();
+  }, [profile, fetchData]);
 
   const matricularse = async (id_curso) => {
     try {
