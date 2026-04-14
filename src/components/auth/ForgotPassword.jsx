@@ -21,7 +21,11 @@ export default function ForgotPassword() {
       if (error) throw error;
       setMessage('Te hemos enviado un correo con las instrucciones para restablecer tu contraseña. Revisa tu bandeja de entrada.');
     } catch (err) {
-      setError('Hubo un error al intentar enviar el correo. Por favor verifica que el correo sea correcto.');
+      if (err.status === 429 || err.message?.includes('rate limit')) {
+        setError('Has alcanzado el límite de correos de Supabase (3 por hora). Por favor, intenta de nuevo en unos minutos.');
+      } else {
+        setError('Hubo un error al intentar enviar el correo. Por favor verifica que el correo sea correcto.');
+      }
     } finally {
       setLoading(false);
     }

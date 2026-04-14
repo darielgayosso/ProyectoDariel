@@ -19,14 +19,11 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // El timeout de 4 segundos protege TODA la carga, incluyendo la base de datos!
+    // El timeout de 10 segundos protege la carga inicial si la conexión es muy lenta
     const fallbackTimeout = setTimeout(() => {
-        console.warn("AuthContext: Timeout alcanzado (4s). Forzando limpieza.");
-        localStorage.clear();
-        setProfile(null);
-        setUser(null);
+        console.warn("AuthContext: Timeout alcanzado (10s). Liberando pantalla de carga.");
         setLoading(false);
-    }, 4000);
+    }, 10000);
 
     // Guardar referencia en window para poder cancelarlo desde fetchProfile
     window.__authTimeout = fallbackTimeout;
